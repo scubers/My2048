@@ -21,7 +21,7 @@ class ViewController: UIViewController {
     }
     
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        let vc = GameViewController();
+        let vc = GameViewController(enableCornerDirection: true);
         presentViewController(vc, animated: true, completion: nil)
     }
 

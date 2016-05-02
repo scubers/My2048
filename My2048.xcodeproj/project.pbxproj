@@ -14,9 +14,10 @@
 		5ACF08D61CD2F77100D37F6E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5ACF08D41CD2F77100D37F6E /* LaunchScreen.storyboard */; };
 		5ACF08E11CD2F77100D37F6E /* My2048Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ACF08E01CD2F77100D37F6E /* My2048Tests.swift */; };
 		5ACF08EC1CD2F77100D37F6E /* My2048UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ACF08EB1CD2F77100D37F6E /* My2048UITests.swift */; };
-		5ACF08FA1CD2F7C200D37F6E /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ACF08F91CD2F7C200D37F6E /* GameViewController.swift */; };
 		5ACF08FC1CD2F9C500D37F6E /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ACF08FB1CD2F9C500D37F6E /* GameView.swift */; };
 		5ACF08FE1CD306A600D37F6E /* GameLogicModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ACF08FD1CD306A600D37F6E /* GameLogicModel.swift */; };
+		A859B4AE1CD73F9900EC06B4 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A859B4AC1CD73F9900EC06B4 /* GameViewController.swift */; };
+		A859B4AF1CD73F9900EC06B4 /* GameViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A859B4AD1CD73F9900EC06B4 /* GameViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,9 +51,10 @@
 		5ACF08E71CD2F77100D37F6E /* My2048UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = My2048UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5ACF08EB1CD2F77100D37F6E /* My2048UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = My2048UITests.swift; sourceTree = "<group>"; };
 		5ACF08ED1CD2F77100D37F6E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5ACF08F91CD2F7C200D37F6E /* GameViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		5ACF08FB1CD2F9C500D37F6E /* GameView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		5ACF08FD1CD306A600D37F6E /* GameLogicModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameLogicModel.swift; sourceTree = "<group>"; };
+		A859B4AC1CD73F9900EC06B4 /* GameViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		A859B4AD1CD73F9900EC06B4 /* GameViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GameViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,8 +107,9 @@
 			children = (
 				5ACF08CB1CD2F77100D37F6E /* AppDelegate.swift */,
 				5ACF08CD1CD2F77100D37F6E /* ViewController.swift */,
+				A859B4AC1CD73F9900EC06B4 /* GameViewController.swift */,
+				A859B4AD1CD73F9900EC06B4 /* GameViewController.xib */,
 				5ACF08CF1CD2F77100D37F6E /* Main.storyboard */,
-				5ACF08F91CD2F7C200D37F6E /* GameViewController.swift */,
 				5ACF08D21CD2F77100D37F6E /* Assets.xcassets */,
 				5ACF08D41CD2F77100D37F6E /* LaunchScreen.storyboard */,
 				5ACF08D71CD2F77100D37F6E /* Info.plist */,
@@ -241,6 +244,7 @@
 				5ACF08D61CD2F77100D37F6E /* LaunchScreen.storyboard in Resources */,
 				5ACF08D31CD2F77100D37F6E /* Assets.xcassets in Resources */,
 				5ACF08D11CD2F77100D37F6E /* Main.storyboard in Resources */,
+				A859B4AF1CD73F9900EC06B4 /* GameViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,8 +271,8 @@
 			files = (
 				5ACF08FE1CD306A600D37F6E /* GameLogicModel.swift in Sources */,
 				5ACF08CE1CD2F77100D37F6E /* ViewController.swift in Sources */,
-				5ACF08FA1CD2F7C200D37F6E /* GameViewController.swift in Sources */,
 				5ACF08FC1CD2F9C500D37F6E /* GameView.swift in Sources */,
+				A859B4AE1CD73F9900EC06B4 /* GameViewController.swift in Sources */,
 				5ACF08CC1CD2F77100D37F6E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

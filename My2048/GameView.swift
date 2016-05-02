@@ -48,8 +48,14 @@ class GameView: UIView {
     }
     
     func setupUI() {
+
+        tileLayers.forEach {$0.removeFromSuperlayer()}
+        tileLayers.removeAll()
+        self.subviews.forEach {$0.removeFromSuperview()}
+
         self.layer.cornerRadius = corner
         self.backgroundColor = UIColor.blackColor()
+
         for _ in 0..<dimension*dimension {
             let tileLayer = CALayer()
             tileLayer.backgroundColor = tileColor.CGColor
@@ -80,6 +86,7 @@ class GameView: UIView {
     func resetGameView() {
         tileViews.removeAll()
         self.subviews.forEach {$0.removeFromSuperview()}
+        setupUI()
     }
     
     // MARK: - 操作方法

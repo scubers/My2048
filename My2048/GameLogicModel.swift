@@ -131,20 +131,23 @@ class GameLogicModel: NSObject {
     }
 
     unowned let delegate: GameLogicModelProtol
-    
-    init(dimension: Int = 4, delegate d: GameLogicModelProtol, maxScore score: Int = 2048) {
-        gameBoard = SquareGameBoard(dimension: dimension, initialValue: EmptyTile(position: (0, 0)))
+
+
+    var dimension: Int = 0
+    var enableCornerDirection: Bool = false
+
+    init(dimension di: Int = 4, enableCornerDirection en: Bool = false, delegate d: GameLogicModelProtol, maxScore score: Int = 2048) {
+        enableCornerDirection = en
         delegate = d
         maxScore = score
+        dimension = di
+        gameBoard = SquareGameBoard(dimension: dimension, initialValue: EmptyTile(position: (0, 0)))
         super.init()
     }
     
     func appendCommond(commond: MoveCommond) {
         commondQueue.append(commond)
         startMove()
-//        if !timer.valid {
-//            timer = NSTimer.scheduledTimerWithTimeInterval(0.3, target: self, selector: #selector(GameLogicModel.startMove), userInfo: nil, repeats: false)
-//        }
     }
     
     // MARK: 添加瓦片操作
@@ -389,8 +392,12 @@ class GameLogicModel: NSObject {
                     if down.value == tile.value {
                         return true
                     }
-                } else {
-                    return true
+                } else if enableCornerDirection {
+                    if let rightDown = gameBoard[j + 1, i + 1] as? TileObject {
+                        if rightDown.value == tile.value {
+                            return true
+                        }
+                    }
                 }
             }
         }

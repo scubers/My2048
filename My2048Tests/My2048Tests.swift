@@ -84,6 +84,32 @@ class My2048Tests: XCTestCase {
         }
     }
 
+    func testAsin() {
+
+        let p = CGPointMake(1, -1)
+
+        // l2 = p.x2 + p.y2; l = sqrt(p.x2 + p.y2)
+        // r = asin(p.y / sqrt(p.x2 + p.y2))
+
+        var r: Double = 0.0
+        let x = Double(p.x)
+        let y = Double(p.y)
+        let l = sqrt(x * x + y * y)
+        if x > 0 {
+            r = asin(Double(p.y) / l)
+            while r < 0 {
+                r += 2 * M_PI
+            }
+        } else {
+            r = M_PI - asin(Double(p.y) / l)
+        }
+
+
+
+        print("r: \(r / (M_PI)) ----- ")
+        print("")
+    }
+
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measureBlock {
