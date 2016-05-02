@@ -230,7 +230,7 @@ class TileView : UIView {
         case 128, 256, 512, 1024, 2048:
             return UIColor(red: 237.0/255.0, green: 207.0/255.0, blue: 114.0/255.0, alpha: 1.0)
         default:
-            return UIColor.whiteColor()
+            return UIColor.blackColor()
         }
     }
 
