@@ -19,8 +19,8 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+
+    override func viewDidAppear(animated: Bool) {
         let vc = GameViewController(enableCornerDirection: true);
         presentViewController(vc, animated: true, completion: nil)
     }

@@ -83,9 +83,9 @@ enum MoveDirection {
 // MARK: - 移动指令
 struct MoveCommond {
     let direction: MoveDirection
-    var completion: (Bool)->()
+    var completion: (hasChange: Bool)->()
 
-    init(direction d: MoveDirection, completion c: (Bool)->()) {
+    init(direction d: MoveDirection, completion c: (hasChange: Bool)->()) {
         direction = d
         completion = c
     }
@@ -120,6 +120,7 @@ class GameLogicModel: NSObject {
     var timer: NSTimer = NSTimer()
 
     var currentCommond: MoveCommond?
+    var currentCommondNeedMoveOrMerge: Bool = false
 
     var logicState: GameLogicState = .Default
 
@@ -134,7 +135,11 @@ class GameLogicModel: NSObject {
 
 
     var dimension: Int = 0
-    var enableCornerDirection: Bool = false
+    var enableCornerDirection: Bool = false {
+        didSet {
+            print(enableCornerDirection)
+        }
+    }
 
     init(dimension di: Int = 4, enableCornerDirection en: Bool = false, delegate d: GameLogicModelProtol, maxScore score: Int = 2048) {
         enableCornerDirection = en
@@ -166,23 +171,17 @@ class GameLogicModel: NSObject {
     func startMove() {
         if logicState == .Caculating { return }
         logicState = .Caculating
-
         if commondQueue.count == 0 { return }
         currentCommond = commondQueue.removeFirst()
         performMove(moveCommond: currentCommond!)
-//        commond.completion(true)
-//        if commondQueue.count > 0 {
-//            timer = NSTimer.scheduledTimerWithTimeInterval(0.4, target: self, selector: #selector(GameLogicModel.startMove), userInfo: nil, repeats: false)
-//        }
     }
 
     func finishMove() {
         assert(logicState != .Default && currentCommond != nil, "Logic state error")
         logicState = .Default
-
-        currentCommond!.completion(true)
+        currentCommond!.completion(hasChange: currentCommondNeedMoveOrMerge)
         currentCommond = nil
-
+        currentCommondNeedMoveOrMerge = false
         if commondQueue.count > 0 {
             startMove()
         }
@@ -192,7 +191,7 @@ class GameLogicModel: NSObject {
     func performMove(moveCommond mc: MoveCommond) {
         let coordinates: [[TileColumnAndRow]] = breakDownSquareCoordinateBy(mc.direction)
 
-        var needMoveTiles = [TileObject]()
+        var tileInfo = [TileObject]()
         for i in 0..<coordinates.count {
             let subCoordinates = coordinates[i]
             let tiles = subCoordinates.map({ (col, row) -> Tile in
@@ -202,12 +201,14 @@ class GameLogicModel: NSObject {
             for i in 0..<newGroup.count {newGroup[i].position = subCoordinates[i]}
             newGroup = merge(newGroup)
             for i in 0..<newGroup.count {newGroup[i].position = subCoordinates[i]}
-            needMoveTiles.appendContentsOf(newGroup)
+            tileInfo.appendContentsOf(newGroup)
         }
 
-        for (idx, tile) in needMoveTiles.enumerate() {
+        for (idx, tile) in tileInfo.enumerate() {
             // TODO: 通知代理如何移动 清空数据， 整理棋盘信息
-            notifyDelegateWithTile(tile, isLast: idx == needMoveTiles.count - 1)
+            if notifyDelegateWithTile(tile, isLast: idx == tileInfo.count - 1) {
+                currentCommondNeedMoveOrMerge = true
+            }
             // 修改棋盘model信息
             fixGameBoard(tile)
         }
@@ -324,7 +325,13 @@ class GameLogicModel: NSObject {
         tile.clearOldMessage()
     }
 
-    func notifyDelegateWithTile(tile: TileObject, isLast: Bool) {
+    /**
+     通知代理需要如何移动
+     - parameter tile:   瓦片信息
+     - parameter isLast: 是否需要移动的最后一个瓦片
+     - returns: 返回本瓦片是否需要移动
+     */
+    func notifyDelegateWithTile(tile: TileObject, isLast: Bool) -> Bool {
         if tile.prePositionFirst != nil && tile.prePositionSecond != nil {
             // 移动两个
             delegate.moveTowFrom(tile.prePositionFirst!, from2: tile.prePositionSecond!, to: tile.position, value: tile.value, complete: {(flag) in
@@ -339,13 +346,15 @@ class GameLogicModel: NSObject {
                 }
             })
         }
+        return (tile.prePositionFirst != nil && tile.prePositionSecond != nil)
+                || (tile.prePositionFirst != nil && tile.prePositionFirst! != tile.position)
     }
 
     // MARK: - 监测游戏状态
     func checkGameState() -> GameState {
         if gameHasWon() {return .Win}
-        if gameHasLose() {return .Lose}
-        return .Normal
+        if gameCanGoon() {return .Normal}
+        return .Lose
     }
 
     // MARK: -  便捷方法
@@ -378,23 +387,55 @@ class GameLogicModel: NSObject {
     }
 
     func gameCanGoon() -> Bool {
-        for i in 0..<gameBoard.dimension {
-            for j in 0..<gameBoard.dimension {
-                if i == gameBoard.dimension - 1 || j == gameBoard.dimension - 1 {continue}
-                guard let tile = gameBoard[j, i] as? TileObject else {
+        for row in 0..<gameBoard.dimension {
+            for col in 0..<gameBoard.dimension {
+                guard let tile = gameBoard[col, row] as? TileObject else {
                     return true
                 }
-                if let right = gameBoard[j + 1, i] as? TileObject {
-                    if right.value == tile.value {
+
+                if col < dimension - 1 {
+                    if let right = gameBoard[col + 1, row] as? TileObject {
+                        if right.value == tile.value {
+                            return true
+                        }
+                    } else {
                         return true
                     }
-                } else if let down = gameBoard[j, i + 1] as? TileObject {
-                    if down.value == tile.value {
+                }
+                if row < dimension - 1 {
+                    if let down = gameBoard[col, row + 1] as? TileObject {
+                        if down.value == tile.value {
+                            return true
+                        }
+                    } else {
                         return true
                     }
-                } else if enableCornerDirection {
-                    if let rightDown = gameBoard[j + 1, i + 1] as? TileObject {
-                        if rightDown.value == tile.value {
+                }
+                if enableCornerDirection {
+                    if row < dimension - 1 && col < dimension - 1 {
+                        if let rightDown = gameBoard[col + 1, row + 1] as? TileObject {
+                            if rightDown.value == tile.value {
+                                return true
+                            }
+                        } else {
+                            return true
+                        }
+                    }
+                    if row > 0 && col < dimension - 1 {
+                        if let rightUp = gameBoard[col + 1, row - 1] as? TileObject {
+                            if rightUp.value == tile.value {
+                                return true
+                            }
+                        } else {
+                            return true
+                        }
+                    }
+                    if row < dimension - 1 && col > 0 {
+                        if let leftDown = gameBoard[col - 1, row + 1] as? TileObject {
+                            if leftDown.value == tile.value {
+                                return true
+                            }
+                        } else {
                             return true
                         }
                     }

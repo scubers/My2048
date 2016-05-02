@@ -8,6 +8,8 @@
 
 import UIKit
 
+let MaxScore: Int = 2048
+
 class ScoreView : UIView {
     var label: UILabel!
     var score: Int = 0 {
@@ -46,10 +48,10 @@ class GameViewController: UIViewController {
     @IBOutlet weak var autoSwitch: UISwitch!
     @IBOutlet weak var cornerSwitch: UISwitch!
     @IBOutlet weak var dimensionField: UITextField!
+    @IBOutlet weak var winConditionField: UITextField!
 
     @IBAction func resetClick(sender: AnyObject) {
         let num = Int(dimensionField.text!)!
-        dimensionField.resignFirstResponder()
         guard num > 2 else {
             let alert = UIAlertController(title: nil, message: "不能低于4维", preferredStyle: .Alert)
             let action = UIAlertAction(title: "确定", style: .Default, handler: nil)
@@ -58,9 +60,21 @@ class GameViewController: UIViewController {
             return
         }
 
+        let winCon = Int(winConditionField.text!)!
+        guard winCon >= 128 else {
+            let alert = UIAlertController(title: nil, message: "不能低于128分", preferredStyle: .Alert)
+            let action = UIAlertAction(title: "确定", style: .Default, handler: nil)
+            alert.addAction(action)
+            presentViewController(alert, animated: true, completion: nil)
+            return
+        }
+
+        self.becomeFirstResponder()
+
         let alert = UIAlertController(title: nil, message: "确定要重置吗？", preferredStyle: .Alert)
         let action = UIAlertAction(title: "确定", style: .Default) { [weak self] (ac) in
             self?.gameDimension = num
+            self?.winCondition = winCon
             self?.resetGame()
         }
         alert.addAction(action)
@@ -68,6 +82,7 @@ class GameViewController: UIViewController {
     }
 
     // MARK: - 设置参数
+    var winCondition: Int = MaxScore
     var gameDimension: Int = 6
     var gameOver: Bool = false
     var autoPlay: Bool = false
@@ -107,6 +122,7 @@ class GameViewController: UIViewController {
         autoSwitch.on = autoPlay
         cornerSwitch.on = enableCornerDirection
         dimensionField.text = "\(gameDimension)"
+        winConditionField.text = "\(winCondition)"
     }
 
     func setupUI() {
@@ -125,7 +141,7 @@ class GameViewController: UIViewController {
         // 分数view
         scoreView = ScoreView()
         scoreView.frame = CGRectMake(0, 0, 100, 40)
-        scoreView.center = CGPointMake(gameView!.center.x, gameView!.frame.origin.y - scoreView.frame.size.height / 2 - 10)
+        scoreView.center = CGPointMake(gameView!.center.x, CGRectGetMaxY(gameView!.frame) + scoreView.frame.size.height / 2 + 10)
         view.addSubview(scoreView)
 
         autoSwitch.addTarget(self, action: #selector(GameViewController.autoPlayDidChange(_:)), forControlEvents: .ValueChanged)
@@ -179,33 +195,36 @@ class GameViewController: UIViewController {
     }
 
     // MARK: - 游戏逻辑
-    func goonGame() {
-        gameLogic.insertTileIntoBoardRandom()
+    func goonGame(hasChange: Bool) {
+        if hasChange {
+            gameLogic.insertTileIntoBoardRandom()
+        }
         let state = gameLogic.checkGameState()
         switch state {
         case .Win:
             gameOver4Win()
         case .Lose:
             gameOver4Lose()
-        default:break
+        default:
+            gameOver = false
         }
     }
 
     func resetGame() {
+//        dimensionField.resignFirstResponder()
+//        winConditionField.resignFirstResponder()
+        autoSwitch.on = false
+        autoPlayDidChange(autoSwitch)
+        gameOver = false
         gameView.dimension = gameDimension
         gameView.resetGameView()
         setupGame()
         scoreView.score = gameLogic.score
-        gameOver = false
-        autoSwitch.on = false
-        autoPlayDidChange(autoSwitch)
     }
 
     func gameOver4Win() {
         let alertController = UIAlertController(title: "you win", message: nil, preferredStyle: .Alert)
-        let action = UIAlertAction(title: "Restart", style: .Default) { (ac: UIAlertAction) in
-            self.resetGame()
-        }
+        let action = UIAlertAction(title: "Restart", style: .Default) { (ac: UIAlertAction) in}
         alertController.addAction(action)
         presentViewController(alertController, animated: true, completion: nil)
         gameOver = true
@@ -213,16 +232,14 @@ class GameViewController: UIViewController {
 
     func gameOver4Lose() {
         let alertController = UIAlertController(title: "you lose", message: nil, preferredStyle: .Alert)
-        let action = UIAlertAction(title: "Restart", style: .Default) { (ac: UIAlertAction) in
-            self.resetGame()
-        }
+        let action = UIAlertAction(title: "Restart", style: .Default) { (ac: UIAlertAction) in}
         alertController.addAction(action)
         presentViewController(alertController, animated: true, completion: nil)
         gameOver = true
     }
 
     func setupGame() {
-        gameLogic = GameLogicModel(dimension: gameDimension, delegate: self, maxScore: 2048)
+        gameLogic = GameLogicModel(dimension: gameDimension, enableCornerDirection: enableCornerDirection, delegate: self, maxScore: winCondition)
         gameLogic.insertTileIntoBoardRandom()
         gameLogic.insertTileIntoBoardRandom()
     }
@@ -242,7 +259,7 @@ class GameViewController: UIViewController {
             let r = radianWithVector(vector)
             let direction = directionWithRadian(r)
             gameLogic.appendCommond(MoveCommond(direction: direction, completion: { (flag) in
-                self.goonGame()
+                self.goonGame(flag)
             }))
             startPoint = nil
             endPoint = nil
@@ -307,26 +324,32 @@ class GameViewController: UIViewController {
     func up(reco: UISwipeGestureRecognizer?) {
         print("up");
         gameLogic.appendCommond(MoveCommond(direction: .Up, completion: { (flag) in
-            self.goonGame()
+            self.goonGame(flag)
         }))
     }
     func down(reco: UISwipeGestureRecognizer?) {
         print("down");
         gameLogic.appendCommond(MoveCommond(direction: .Down, completion: { (flag) in
-            self.goonGame()
+            self.goonGame(flag)
         }))
     }
     func left(reco: UISwipeGestureRecognizer?) {
         print("left");
         gameLogic.appendCommond(MoveCommond(direction: .Left, completion: { (flag) in
-            self.goonGame()
+            self.goonGame(flag)
         }))
     }
     func right(reco: UISwipeGestureRecognizer?) {
         print("right");
         gameLogic.appendCommond(MoveCommond(direction: .Right, completion: { (flag) in
-            self.goonGame()
+            self.goonGame(flag)
         }))
+    }
+
+    // MARK: - Controller 方法
+
+    override func canBecomeFirstResponder() -> Bool {
+        return true
     }
 
     override func prefersStatusBarHidden() -> Bool {
@@ -349,7 +372,7 @@ class GameViewController: UIViewController {
         }
         let idx = Int(arc4random_uniform(UInt32(dirs.count)))
         gameLogic.appendCommond(MoveCommond(direction: dirs[idx], completion: { (flag) in
-            self.goonGame()
+            self.goonGame(flag)
         }))
         if !gameOver && autoPlay {
             NSTimer.scheduledTimerWithTimeInterval(0.15, target: self, selector: #selector(GameViewController.startAutoPlay), userInfo: nil, repeats: false)
