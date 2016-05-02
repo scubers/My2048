@@ -19,7 +19,15 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        let vc = GameViewController();
+        presentViewController(vc, animated: true, completion: nil)
+    }
 
+    override func prefersStatusBarHidden() -> Bool {
+        return true
+    }
 
 }
 
